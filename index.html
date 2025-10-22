@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sauced - Creative Agency">
+    <title>Sauced</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        #background-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* Ensure vertical videos fill mobile screens properly */
+        @media (max-width: 768px) and (orientation: portrait) {
+            #background-video {
+                width: 100%;
+                height: 100%;
+                min-width: 100%;
+                min-height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        /* Handle landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            #background-video {
+                width: auto;
+                height: 100%;
+                min-height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: transparent;
+        }
+
+        .footer-icons {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .footer-icons a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-icons a:hover {
+            opacity: 0.7;
+            transform: scale(1.1);
+        }
+
+        .footer-icons svg {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 30px;
+            }
+
+            .footer-icons {
+                gap: 25px;
+            }
+
+            .footer-icons a {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            footer {
+                padding: 20px;
+            }
+
+            .footer-icons {
+                gap: 20px;
+            }
+
+            .footer-icons a {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading spinner -->
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <div id="video-container">
+        <video id="background-video" autoplay loop muted playsinline preload="auto">
+            <source src="sauced-desktop.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <footer>
+        <div class="footer-icons">
+            <a href="https://www.instagram.com/sauced.in/" target="_blank" rel="noopener noreferrer" aria-label="Visit our Instagram">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </a>
+            <a href="https://x.com/saucedagency" target="_blank" rel="noopener noreferrer" aria-label="Visit our Twitter/X">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // Define your video variations (2 videos each)
+        const desktopVideos = [
+            'sauced-desktop-1.mp4',
+            'sauced-desktop-2.mp4'
+        ];
+
+        const mobileVideos = [
+            'sauced-mobile-1.mp4',
+            'sauced-mobile-2.mp4'
+        ];
+
+        // Generate a simple fingerprint for the visitor
+        function getVisitorFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('Browser fingerprint', 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText('Browser fingerprint', 4, 17);
+            
+            const fingerprint = canvas.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < fingerprint.length; i++) {
+                const char = fingerprint.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            
+            // Combine with screen resolution and timezone for more uniqueness
+            const uniqueId = `${hash}_${screen.width}x${screen.height}_${new Date().getTimezoneOffset()}`;
+            return Math.abs(uniqueId.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0));
+        }
+
+        // Get video based on visitor and visit count
+        function getVideoForVisitor(videoArray) {
+            const fingerprint = getVisitorFingerprint();
+            const storageKey = 'sauced_visit_count';
+            
+            // Get visit count from localStorage
+            let visitCount = localStorage.getItem(storageKey);
+            
+            if (visitCount === null) {
+                // First visit - random selection based on fingerprint
+                visitCount = 0;
+            } else {
+                visitCount = parseInt(visitCount);
+            }
+            
+            // Increment visit count
+            visitCount++;
+            localStorage.setItem(storageKey, visitCount);
+            
+            // Alternate video based on visit count
+            // This ensures they see the other video on next visit/refresh
+            const videoIndex = visitCount % videoArray.length;
+            
+            return videoArray[videoIndex];
+        }
+
+        // Detect device and load appropriate video
+        const video = document.getElementById('background-video');
+        const loading = document.getElementById('loading');
+        const isMobile = window.innerWidth <= 768;
+        
+        // Select video based on device and visitor
+        const selectedVideo = isMobile ? getVideoForVisitor(mobileVideos) : getVideoForVisitor(desktopVideos);
+        
+        // Clear existing sources and add new one
+        video.pause();
+        video.removeAttribute('src');
+        video.innerHTML = '';
+        
+        const source = document.createElement('source');
+        source.src = selectedVideo;
+        source.type = 'video/mp4';
+        video.appendChild(source);
+        
+        video.load();
+        
+        // Debug logging
+        console.log('Device type:', isMobile ? 'Mobile' : 'Desktop');
+        console.log('Screen width:', window.innerWidth);
+        console.log('Loading video:', selectedVideo);
+        
+        // Preload the other video for faster next load
+        const otherVideoIndex = (parseInt(localStorage.getItem('sauced_visit_count')) || 0) % (isMobile ? mobileVideos.length : desktopVideos.length);
+        const otherVideo = isMobile ? mobileVideos[otherVideoIndex] : desktopVideos[otherVideoIndex];
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'prefetch';
+        preloadLink.href = otherVideo;
+        document.head.appendChild(preloadLink);
+        
+        // Hide loading screen when video is ready
+        video.addEventListener('loadeddata', function() {
+            console.log('Video loaded successfully');
+            setTimeout(() => {
+                loading.classList.add('hidden');
+            }, 300);
+        });
+        
+        // Additional event for when video can play
+        video.addEventListener('canplaythrough', function() {
+            console.log('Video can play through');
+            loading.classList.add('hidden');
+        });
+
+        // Error handling
+        video.addEventListener('error', function(e) {
+            console.error('Video error:', e);
+            console.error('Failed to load:', selectedVideo);
+            loading.innerHTML = '<div style="color: white; text-align: center;"><p>Video failed to load</p><p style="font-size: 14px;">' + selectedVideo + '</p></div>';
+        });
+
+        // Fallback: hide loading after 5 seconds
+        setTimeout(() => {
+            if (!loading.classList.contains('hidden')) {
+                console.warn('Video taking too long to load');
+                loading.classList.add('hidden');
+            }
+        }, 5000);
+
+        // Ensure video plays on mobile devices
+        video.addEventListener('canplay', function() {
+            video.play().then(() => {
+                console.log('Video playing');
+            }).catch(err => {
+                console.log('Autoplay prevented:', err);
+                // Show a play button if autoplay fails
+                showPlayButton();
+            });
+        });
+
+        // Show manual play button if autoplay fails
+        function showPlayButton() {
+            const playBtn = document.createElement('button');
+            playBtn.innerHTML = '▶ Play';
+            playBtn.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+                padding: 20px 40px;
+                font-size: 24px;
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+            `;
+            playBtn.onclick = () => {
+                video.play();
+                playBtn.remove();
+            };
+            document.body.appendChild(playBtn);
+        }
+
+        // Optional: Log for debugging (remove in production)
+        console.log('Visit count:', localStorage.getItem('sauced_visit_count'));
+        
+        // Force reload on orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                location.reload();
+            }, 200);
+        });
+    </script>
+</body>
+</html>
